@@ -1,16 +1,16 @@
 import argparse
 import os
 import matplotlib.pyplot as plt
-from src.core.cov_core import compute_cov_stats
+from src.core.zcr_core import compute_zcr_stats
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Plot CoV over time")
+    parser = argparse.ArgumentParser(description="Plot ZCR over time")
     parser.add_argument("h5_path", help="Path to H5 file")
-    parser.add_argument("target_id", help="Sensor ID (e.g., 16162 or XI-016162)")
+    parser.add_argument("target_id", help="Sensor ID (e.g., 16162)")
     parser.add_argument("--out", default="Graphs", help="Output folder")
     args = parser.parse_args()
 
-    cov_df = compute_cov_stats(args.h5_path, args.target_id)
+    zcr_df = compute_zcr_stats(args.h5_path, args.target_id)
 
     os.makedirs(args.out, exist_ok=True)
 
@@ -18,23 +18,23 @@ if __name__ == "__main__":
     plt.figure(figsize=(15, 7))
 
     plt.plot(
-        cov_df.index,
-        cov_df["cov"],
-        label="CoV",
-        color="green",
-        marker="o",
-        markersize=3,
+        zcr_df.index,
+        zcr_df["zero_crossing_rate"],
+        label="ZCR",
+        color="orangered",
+        marker="|",
+        markersize=5,
         linestyle="-",
     )
 
-    plt.title("Coefficient of Variation (CoV) Over Time (30s Epochs)", fontsize=16)
+    plt.title("Zero-Crossing Rate (Restlessness) Over Time (30s Epochs)", fontsize=16)
     plt.xlabel("Time", fontsize=12)
-    plt.ylabel("Coefficient of Variation (Unitless)", fontsize=12)
+    plt.ylabel("Zero-Crossing Count per Epoch", fontsize=12)
     plt.legend()
     plt.tight_layout()
 
     base = os.path.splitext(os.path.basename(args.h5_path))[0]
-    out_png = os.path.join(args.out, f"{base}_cov_plot.png")
+    out_png = os.path.join(args.out, f"{base}_zcr_plot.png")
 
     plt.savefig(out_png)
     plt.close()

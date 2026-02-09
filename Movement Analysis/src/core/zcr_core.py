@@ -4,7 +4,11 @@ import pandas as pd
 import datetime
 import os
 
-def compute_speed_stats(h5_path, target_id):
+def zero_crossings(x):
+    """Counts the number of times a signal crosses the zero-axis."""
+    return np.count_nonzero(np.diff(np.sign(x)))
+
+def compute_zcr_stats(h5_path, target_id):
     if not os.path.exists(h5_path):
         raise FileNotFoundError(f"File '{h5_path}' not found.")
 
@@ -20,18 +24,23 @@ def compute_speed_stats(h5_path, target_id):
         time_raw = np.array(f[f"{base_path}/Time"][:], dtype=np.float64)
         time_dt = np.array([datetime.datetime.fromtimestamp(t * 1e-6) for t in time_raw])
 
-    # --- EXACT same math as your script ---
-    time_sec = (time_raw - time_raw[0]) * 1e-6
-    delta_t = np.gradient(time_sec)
+    acc_magnitude = np.linalg.norm(acc_data, axis=1)
+    diff_mag = np.diff(acc_magnitude)
 
-    acc_mag = np.linalg.norm(acc_data, axis=1)
-    speed_est = np.cumsum(acc_mag * delta_t)
+    df = pd.DataFrame({
+        "timestamp": time_dt[1:],   
+        "diff_mag": diff_mag
+    }).set_index("timestamp")
 
-    df = pd.DataFrame({"timestamp": time_dt, "speed_est": speed_est}).set_index("timestamp")
+    zcr_df = (
+        df["diff_mag"]
+        .resample("30s")
+        .apply(zero_crossings)
+        .dropna()
+        .to_frame(name="zero_crossing_rate")
+    )
 
-    epoch_features = df["speed_est"].resample("30s").agg(["mean", "std", "min", "max"]).dropna()
+    if zcr_df.empty:
+        raise ValueError("No data available to calculate Zero-Crossing Rate.")
 
-    if epoch_features.empty:
-        raise ValueError("No data available to calculate epoch statistics.")
-
-    return epoch_features
+    return zcr_df

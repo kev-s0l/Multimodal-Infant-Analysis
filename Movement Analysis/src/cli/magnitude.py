@@ -1,17 +1,23 @@
-import argparse, os
-from src.core.magnitude_core import compute_magnitude_epochs
+import argparse
+import os
+from src.core.magnitude_core import compute_acc_magnitude_stats
 
 if __name__ == "__main__":
-    p = argparse.ArgumentParser(description="Compute acceleration magnitude stats per epoch")
-    p.add_argument("h5_path")
-    p.add_argument("target_id")
-    p.add_argument("--out", default="movement_outputs")
-    args = p.parse_args()
+    parser = argparse.ArgumentParser(description="Compute acceleration magnitude stats (30s epochs)")
+    parser.add_argument("h5_path", help="Path to H5 file")
+    parser.add_argument("target_id", help="Sensor ID (e.g., XI-016162 or 16162)")
+    parser.add_argument("--out", default="movement_outputs", help="Output folder")
+    args = parser.parse_args()
 
-    df = compute_magnitude_epochs(args.h5_path, args.target_id)
-    print(df.head())
+    epoch_features = compute_acc_magnitude_stats(args.h5_path, args.target_id)
+
+    print("\n--- Acceleration Magnitude Statistics ---")
+    print(epoch_features.head())
 
     os.makedirs(args.out, exist_ok=True)
-    out_csv = os.path.join(args.out, "magnitude_epochs.csv")
-    df.to_csv(out_csv)
-    print(f"Saved to {out_csv}")
+
+    base = os.path.splitext(os.path.basename(args.h5_path))[0]
+    out_csv = os.path.join(args.out, f"{base}_acc_magnitude_per_epoch.csv")
+
+    epoch_features.to_csv(out_csv)
+    print(f"\nSaved epoch statistics to {out_csv}")

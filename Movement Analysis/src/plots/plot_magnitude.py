@@ -1,22 +1,46 @@
-import argparse, os
+import argparse
+import os
 import matplotlib.pyplot as plt
-from src.core.magnitude_core import compute_magnitude_epochs
+import matplotlib.dates as mdates
+from src.core.magnitude_core import compute_acc_magnitude_stats
 
 if __name__ == "__main__":
-    p = argparse.ArgumentParser(description="Plot mean magnitude per epoch")
-    p.add_argument("h5_path")
-    p.add_argument("target_id")
-    p.add_argument("--out", default="Graphs")
-    args = p.parse_args()
+    parser = argparse.ArgumentParser(description="Plot acceleration magnitude stats")
+    parser.add_argument("h5_path", help="Path to H5 file")
+    parser.add_argument("target_id", help="Sensor ID (e.g., XI-016162 or 16162)")
+    parser.add_argument("--out", default="Graphs", help="Output folder")
+    args = parser.parse_args()
 
-    df = compute_magnitude_epochs(args.h5_path, args.target_id)
+    epoch_features = compute_acc_magnitude_stats(args.h5_path, args.target_id)
+
     os.makedirs(args.out, exist_ok=True)
 
-    plt.figure(figsize=(12,5))
-    plt.plot(df.index, df["mean"], label="Mean Magnitude")
-    plt.title("Mean Acceleration Magnitude (per epoch)")
-    plt.xlabel("Time"); plt.ylabel("Magnitude"); plt.legend(); plt.tight_layout()
+    plt.style.use("seaborn-v0_8-whitegrid")
+    plt.figure(figsize=(15, 7))
 
-    out_png = os.path.join(args.out, "magnitude_mean.png")
-    plt.savefig(out_png, dpi=200); plt.close()
-    print(f"Saved plot to {out_png}")
+    plt.plot(epoch_features.index, epoch_features["mean"], label="Mean Acceleration", color="royalblue")
+
+    plt.fill_between(
+        epoch_features.index,
+        epoch_features["mean"] - epoch_features["std"],
+        epoch_features["mean"] + epoch_features["std"],
+        color="lightblue",
+        alpha=0.5,
+        label="Standard Deviation",
+    )
+
+    plt.title("Mean Acceleration Magnitude Over Time", fontsize=16)
+    plt.xlabel("Time", fontsize=12)
+    plt.ylabel("Acceleration Magnitude", fontsize=12)
+
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
+    plt.legend()
+    plt.tight_layout()
+
+    base = os.path.splitext(os.path.basename(args.h5_path))[0]
+    out_png = os.path.join(args.out, f"{base}_acceleration_magnitude_plot.png")
+
+    plt.savefig(out_png)
+    plt.close()
+
+    print(f"Successfully generated and saved {out_png}")
