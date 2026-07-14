@@ -1,8 +1,10 @@
 numpy<2.4
 pandas
 matplotlib
+seaborn
 h5py
 scipy
 mne
 yasa
 scikit-learn
+edfio
