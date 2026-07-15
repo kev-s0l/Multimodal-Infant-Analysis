@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local environment/config
+.env
+.env.*
+*.log
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Raw/input data files
+*.h5
+*.hdf5
+*.edf
+*.its
+
+# Generated analysis outputs
+**/lena_extraction_output/
+**/lena_visualizations/
+**/movement_outputs/
+**/sleep_visualizations/
+**/reports/
