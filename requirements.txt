@@ -8,3 +8,5 @@ mne
 yasa
 scikit-learn
 edfio
+PySide6
+pyinstaller

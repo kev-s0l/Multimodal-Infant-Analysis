@@ -32,6 +32,24 @@ The scripts are written as local module pipelines. Run commands from the `src`
 directory for the analysis area you want to use so imports such as `core` and
 `plots` resolve correctly.
 
+## Desktop Application
+
+This repository also includes a PySide6 desktop UI for running analyses without
+automatic CSV or PNG output. Results appear in app tables/messages, and graphs
+render inside the application.
+
+```bash
+python -m app.main
+```
+
+To build a Windows one-folder executable:
+
+```powershell
+.\scripts\build_desktop_app.ps1
+```
+
+The executable is written to `dist\MultimodalInfantAnalysis\`.
+
 ## Repository Structure
 
 ```text
