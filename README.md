@@ -337,16 +337,18 @@ The workflow writes:
 Core dependencies are listed in `requirements.txt` and include numerical,
 plotting, H5, EDF, and sleep-staging libraries:
 
-- NumPy
+- numpy<2.4
 - pandas
-- Matplotlib
+- matplotlib
 - seaborn
 - h5py
-- SciPy
-- MNE
-- YASA
+- scipy
+- mne
+- yasa
 - scikit-learn
 - edfio
+- PySide6
+- pyinstaller
 
 ## License
 
